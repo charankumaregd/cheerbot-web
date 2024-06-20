@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title></title>
+    <link rel="stylesheet" href="../css/stylesheet1.css" />
+    <link rel="stylesheet" type="text/css" href="../css/stylesheet2.css" />
+  </head>
+  <body>
+    <nav>
+      <div class="nav-container">
+        <ul>
+          <li>
+            <a href="#">Home</a>
+          </li>
+          <li>
+            <a href="https://www.youtube.com/channel/UCzuqhhs6NWbgTzMuM09WKDQ"
+              >My Profile</a
+            >
+          </li>
+          <li><a href="https://monkeylearn.com/">Emotion Monitoring</a></li>
+          <li>
+            <a href="https://www.silvergames.com/en/t/stress-relief"
+              >Stress-Relief Media</a
+            >
+          </li>
+          <li><a href="https://www.vandrevalafoundation.com/">Workouts</a></li>
+
+          <li><a href="#">Feedback</a></li>
+          <li><a href="#">Help</a></li>
+          <p class="surprise">
+            <b>To reveal a pleasant surprise, click the button.</b>
+          </p>
+          <div>
+            <li>
+              <button class="button-64" role="button" id="cameraButton">
+                <span class="text"><b>SURPRISE!</b></span>
+              </button>
+              <video id="videoElement" autoplay></video>
+            </li>
+          </div>
+        </ul>
+      </div>
+    </nav>
+
+    <div id="container" class="container">
+      <h2 class="title">
+        <b style="color: #486d94">I'm CheerBot. I'm here to Help You.</b>
+      </h2>
+      <div id="chat" class="chat">
+        <div id="messages" class="messages"></div>
+        <input
+          id="input"
+          type="text"
+          placeholder="Type Your text Here !"
+          autocomplete="off"
+          autofocus="true"
+        />
+      </div>
+    </div>
+
+    <!-- main article -->
+  </body>
+  <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", () => {
+      const inputField = document.getElementById("input");
+      inputField.addEventListener("keydown", (e) => {
+        if (e.code === "Enter") {
+          let input = inputField.value;
+          inputField.value = "";
+          output(input);
+        }
+      });
+    });
+
+    function output(input) {
+      let product;
+
+      // Regex remove non word/space chars
+      // Trim trailing whitespce
+      // Remove digits - not sure if this is best
+      // But solves problem of entering something like 'hi1'
+
+      let text = input
+        .toLowerCase()
+        .replace(/[^\w\s]/gi, "")
+        .replace(/[\d]/gi, "")
+        .trim();
+      text = text
+        .replace(/ a /g, " ") // 'tell me a story' -> 'tell me story'
+        .replace(/i feel /g, "")
+        .replace(/whats/g, "what is")
+        .replace(/please /g, "")
+        .replace(/ please/g, "")
+        .replace(/r u/g, "are you");
+
+      if (compare(prompts, replies, text)) {
+        // Search for exact match in `prompts`
+        product = compare(prompts, replies, text);
+      } else if (text.match(/thank/gi)) {
+        product = "You're welcome!";
+      } else {
+        // If all else fails: random alternative
+        product = alternative[Math.floor(Math.random() * alternative.length)];
+      }
+
+      // Update DOM
+      addChat(input, product);
+    }
+
+    function compare(promptsArray, repliesArray, string) {
+      let reply;
+      let replyFound = false;
+      for (let x = 0; x < promptsArray.length; x++) {
+        for (let y = 0; y < promptsArray[x].length; y++) {
+          if (promptsArray[x][y] === string) {
+            let replies = repliesArray[x];
+            reply = replies[Math.floor(Math.random() * replies.length)];
+            replyFound = true;
+            // Stop inner loop when input value matches prompts
+            break;
+          }
+        }
+        if (replyFound) {
+          // Stop outer loop when reply is found instead of interating through the entire array
+          break;
+        }
+      }
+      return reply;
+    }
+
+    function addChat(input, product) {
+      const messagesContainer = document.getElementById("messages");
+
+      let userDiv = document.createElement("div");
+      userDiv.id = "user";
+      userDiv.className = "user response";
+      userDiv.innerHTML = `<img src="../images/user.png" class="avatar"><span>${input}</span>`;
+      messagesContainer.appendChild(userDiv);
+
+      let botDiv = document.createElement("div");
+      let botImg = document.createElement("img");
+      let botText = document.createElement("span");
+      botDiv.id = "bot";
+      botImg.src = "../images/logo.png";
+      botImg.className = "avatar";
+      botDiv.className = "bot response";
+      botText.innerText = "Typing...";
+      botDiv.appendChild(botText);
+      botDiv.appendChild(botImg);
+      messagesContainer.appendChild(botDiv);
+      // Keep messages at most recent
+      messagesContainer.scrollTop =
+        messagesContainer.scrollHeight - messagesContainer.clientHeight;
+
+      // Fake delay to seem "real"
+      setTimeout(() => {
+        botText.innerText = `${product}`;
+        textToSpeech(product);
+      }, 2000);
+    }
+  </script>
+
+  <script type="text/javascript">
+    // Options the user could type in
+    const prompts = [
+      [
+        "hi",
+        "hey",
+        "hello",
+        "good morning",
+        "good afternoon",
+        "good evening",
+        "namaste",
+        "vanakkam",
+        "namasthe",
+        "hii",
+        "hiii",
+      ],
+      ["fine", "good", "nice"],
+      ["not feeling well", "i am so sad", "i am not good"],
+      [
+        "i dont have friends",
+        "i dont have money",
+        "i dont have frnds",
+        "no frnds",
+        "no friends",
+        "no money",
+      ],
+      ["thank you", "tq", "thank u"],
+      ["can you be my friend", "can u be my frnd", "can u be my friend"],
+      [
+        "do you already have any friends",
+        "do u already have any friends",
+        "do you already have any friends",
+        "do u already have any friends",
+      ],
+      ["really"],
+      ["i truly feel joyful now", "very happy now", "i am very happy now"],
+      ["bye", "byee", "tata", "good bye"],
+      [
+        "i dont like to live",
+        "i hate this life",
+        "i am alone",
+        "im alone",
+        "i am worthless",
+        "i am so alone",
+        "i am alone",
+        "i am bad person",
+        "i am so bad",
+        "im so bad",
+        "nobody likes me",
+        "everyone hates me",
+        "i am bad",
+      ],
+      [
+        "i am going to die",
+        "i cant live",
+        "i cannot live",
+        "ill die",
+        "i will die",
+        "i die",
+        "i dont live",
+      ],
+    ];
+
+    // Possible responses, in corresponding order
+
+    const replies = [
+      ["Hello! How are you dude?", "Hey! How are you dude?"],
+      ["Awesome!😊", "Wow😊...", "That's good!😇"],
+      [
+        "Why dude!,What's wrong with you?..😐",
+        "Why dude😐... What happened???😐",
+      ],
+      ["Don't worry dude!... I'll be here for you at all times🤗"],
+      ["Your pleasure :)"],
+      ["Sure!...I'm overjoyed... In fact, I'm already you friend😍"],
+      ["Yes!... That's you my dear friend😍"],
+      ["Yup!", "Yes!"],
+      ["That's good dear :)"],
+      ["Bye my dear, nice to talk with you✨"],
+      [
+        "My dear friend!, You are a strong and brave person, and I'm here for you.....Hey dude!... Call my friend,Who was so funny...(Ph:9080908070).",
+      ],
+      [
+        "Hey dude!... Visit(Address: Anna Nagar,Madurai 657392. Ph:9070687900) and take part in the round-chair game. click this to see the location:____ ",
+      ],
+    ];
+
+    // Random for any other user input
+
+    const alternative = [
+      "Go on...",
+      "Dude... Tell me clearly",
+      "Try again",
+      "I'm listening...once again please",
+      "I don't understand :/",
+    ];
+  </script>
+
+  <script type="text/javascript" src="../js/speech.js"></script>
+  <script type="text/javascript">
+    // get the video element from the HTML
+    const videoElement = document.getElementById("videoElement");
+
+    // get the button element from the HTML
+    const cameraButton = document.getElementById("cameraButton");
+
+    // add event listener to the button element
+    cameraButton.addEventListener("click", () => {
+      // create a MediaStream object that captures video from the user's camera
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((stream) => {
+          // set the video element's src attribute to the MediaStream object
+          videoElement.srcObject = stream;
+          // play the video stream
+          videoElement.play();
+        })
+        .catch((err) => {
+          console.error("Error accessing camera:", err);
+        });
+    });
+  </script>
+</html>
